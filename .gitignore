@@ -1,0 +1,11 @@
+# Node and DSH-local artifacts
+node_modules/
+.dsh-cache/
+.dsh-state/
+*.log
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

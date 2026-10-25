@@ -1,0 +1,18 @@
+# Example profile patch for web-fetch-fakeip.
+#
+# Merge this block into $DSH_HOME/profiles/<profile>/cordis.patch.yml,
+# which is the user patch layer applied after every bundle.
+#
+# Replace the `name` value with an absolute path to web-fetch-fakeip.mjs in
+# this repository. Alternatively, copy that file into
+# $DSH_HOME/profiles/<profile>/plugins/ and use:
+#
+#     name: ./plugins/web-fetch-fakeip.mjs
+#
+# `statusFile` is optional; it lets you check whether the plugin is active.
+
+- insert:
+    - id: web-fetch-fakeip
+      name: /home/elder/projects/dsh_optimization/web-fetch-fakeip/web-fetch-fakeip.mjs
+      config:
+        statusFile: /tmp/dsh-web-fetch-fakeip.status
