@@ -1,4 +1,8 @@
-# Example profile patch for web-fetch-fakeip.
+# Example *manual* profile patch for web-fetch-fakeip.
+#
+# The package also ships a bundle patch (`cordis.patch.yml`) used by the
+# standard install flow (`dsh plugin add <path>` or the Web Plugins page).
+# The manual row below is for a minimal install without a bundle dependency.
 #
 # Merge this block into $DSH_HOME/profiles/<profile>/cordis.patch.yml,
 # which is the user patch layer applied after every bundle.

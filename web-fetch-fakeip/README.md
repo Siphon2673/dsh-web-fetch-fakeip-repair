@@ -42,8 +42,31 @@ Node.js built-ins.
 
 ## Install
 
-Add an insert row to the profile's patch file, for example
-`~/.dsh/profiles/web/cordis.patch.yml`:
+### Standard bundle install (recommended)
+
+This directory is a DSH bundle package: `package.json` declares
+`dsh.bundle.patch`, and [`cordis.patch.yml`](./cordis.patch.yml) inserts the
+plugin row. Install it through the same flow as any other profile plugin:
+
+```bash
+dsh plugin --profile web add file:/home/elder/projects/dsh_optimization/web-fetch-fakeip
+```
+
+or open **Plugins → Add plugin** in the Web UI and enter the absolute path
+`/home/elder/projects/dsh_optimization/web-fetch-fakeip`.
+
+The installer adds `dsh-web-fetch-fakeip` to the profile and selects its bundle
+layer. The bundle then appears on the sidebar **Plugins** page, where both the
+bundle and its `web-fetch-fakeip` row can be switched on and off.
+
+With the default profile HMR (`hmr` row enabled), the change applies without a
+restart. If HMR is disabled, restart `dsh web`.
+
+### Manual row install (no bundle)
+
+For a minimal install without a profile dependency, add the row directly to
+the profile's patch file (for example
+`~/.dsh/profiles/web/cordis.patch.yml`):
 
 ```yaml
 - insert:
@@ -53,19 +76,17 @@ Add an insert row to the profile's patch file, for example
         statusFile: /tmp/dsh-web-fetch-fakeip.status
 ```
 
-`name` may be:
-
-- an absolute path to this file (shown above), or
-- a path relative to the patch file, for example
-  `./plugins/web-fetch-fakeip.mjs` after copying the file into
-  `$DSH_HOME/profiles/<profile>/plugins/`.
+`name` may be an absolute path to this file, or a path relative to the patch
+file (for example `./plugins/web-fetch-fakeip.mjs` after copying the file into
+`$DSH_HOME/profiles/<profile>/plugins/`).
 
 `statusFile` is optional. When set, the plugin writes a small JSON status file
 while active and removes it on unload; it is useful for checking whether the
 plugin mounted.
 
-With the default profile HMR (`hmr` row enabled), the change applies without a
-restart. If HMR is disabled, restart `dsh web`.
+A manually inserted row is a plain Loader entry, not a bundle. It is visible
+in **Settings → Built-in plugins** (the read-only inventory), but **not** on
+the sidebar **Plugins** page, which lists profile bundles and their rows.
 
 A ready-to-copy snippet is in
 [`cordis.patch.example.yml`](./cordis.patch.example.yml).
@@ -92,21 +113,33 @@ Disable the row and the file is removed.
 
 ## Enable / disable
 
-**Web Plugins page.** Open the sidebar's **Plugins** page and toggle the
-`web-fetch-fakeip` row. The module is shown as a `file:///...` URL.
+### Bundle install
 
-**Or edit the patch.** Add/remove `disabled: true` on the row:
+Open the sidebar **Plugins** page. The card **dsh-web-fetch-fakeip** has a
+bundle switch, and its row **web-fetch-fakeip** has its own switch:
+
+- the bundle switch removes or restores the whole bundle layer;
+- the row switch writes a `disabled` override into the profile patch.
+
+Either way profile HMR applies the change in about a second.
+
+### Manual row install
+
+Add or remove `disabled: true` on the row in the profile patch:
 
 ```yaml
     - id: web-fetch-fakeip
-      name: /home/elder/projects/dsh_optimization/web-fetch-fakeip/web-fetch-fakeip.mjs
       disabled: true
 ```
 
-Profile HMR applies the change in about a second. No restart is required.
+### Uninstall
 
-**Uninstall.** Remove the `- insert:` block and delete the plugin file. DSH is
-back to its stock behavior; there is nothing in `node_modules` to restore.
+- **Bundle:** switch it off or remove it on the **Plugins** page, or run
+  `dsh plugin --profile web remove dsh-web-fetch-fakeip`. The profile returns
+  to its previous composition.
+- **Manual row:** remove the `- insert:` block.
+
+DSH's installed source is untouched in both cases.
 
 ## Scope and security
 

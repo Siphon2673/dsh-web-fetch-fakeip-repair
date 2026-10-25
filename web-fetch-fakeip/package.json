@@ -1,0 +1,25 @@
+{
+  "name": "dsh-web-fetch-fakeip",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reversible DSH web_fetch support for TUN fake-IP DNS answers in 198.18.0.0/15.",
+  "exports": "./web-fetch-fakeip.mjs",
+  "files": [
+    "web-fetch-fakeip.mjs",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "web-fetch",
+    "fake-ip",
+    "tun"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}
