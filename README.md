@@ -1,14 +1,36 @@
 # dsh-web-fetch-fakeip-repair
 
+**English** | [中文](./README.zh.md)
+
 A reversible, profile-local DSH plugin that repairs `web_fetch` behind a TUN
 proxy in fake-IP mode (Clash/Mihomo, sing-box, ...).
+
+> [!WARNING]
+> **Personal, non-service DSH deployments only.** Do not use this plugin for
+> shared, multi-tenant, or publicly accessible DSH instances, or where
+> untrusted callers can choose `web_fetch` URLs.
+>
+> **Expected SSRF trade-off:** the plugin deliberately accepts fake-IP answers
+> for hostnames. DSH then cannot verify the real destination that the proxy
+> resolves and connects to. If the proxy maps a hostname to loopback, a private
+> network, a link-local address, or cloud metadata and permits the connection,
+> `web_fetch` may reach it. **This intentionally defeats DSH's final-destination
+> SSRF protection for accepted hostnames in fake-IP mode.** The project owner
+> accepts that consequence only for the stated personal-use scope.
+>
+> The intended use case assumes trusted, official LLM providers, but an official
+> provider does not make web content or prompt input trustworthy. Keep the
+> TUN/proxy trusted, block loopback/private/link-local/metadata egress at the
+> proxy where possible, and disable and re-evaluate this plugin if the
+> deployment becomes shared or externally accessible. If this trade-off is not
+> acceptable, do not enable the plugin.
 
 - ✅ No change to DSH's installed source.
 - ✅ Installs as a standard DSH bundle; enable/disable live through the
   Plugins page, the profile patch, or HMR.
 - ✅ Only hostname DNS answers in `198.18.0.0/15` are relaxed.
-- ✅ URL IP literals, `localhost`, and every other private/loopback range keep
-  the original rejection.
+- ✅ URL IP literals and directly resolved private/loopback answers keep the
+  original rejection.
 - ✅ MIT licensed.
 
 ## The problem
@@ -34,8 +56,8 @@ fetch provider:
 2. Only when it throws `WEB_BLOCKED_URL` for a **hostname** whose complete DNS
    answer set is fake IPv4 in `198.18.0.0/15` does the wrapper re-resolve and
    return those answers.
-3. URL IP literals, loopback, and every other private range keep the original
-   error.
+3. URL IP literals and non-fake answers, including directly resolved
+   loopback/private addresses, keep the original error.
 4. Disabling the row restores the original resolver. If the provider registers
    later than the plugin, the plugin retries for up to 10 seconds.
 
@@ -146,13 +168,24 @@ DSH's installed source is untouched in both cases.
 
 ## Scope and security
 
+Read the deployment and SSRF warning at the top of this document before using
+the plugin.
+
 Only IPv4 DNS answers in `198.18.0.0/15` are accepted, and only when they came
-from resolving a hostname. These remain blocked:
+from resolving a hostname. When these addresses are directly visible in the
+fallback DNS answer set, the following remain blocked:
 
 - URL IP literals such as `http://198.18.0.185/`;
-- `localhost` and hostnames resolving to `127.0.0.0/8` or `::1`;
+- `localhost` and hostnames whose fallback answers contain `127.0.0.0/8` or
+  `::1`;
 - `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, link-local, and every other
   non-public range.
+
+These restrictions apply to the DNS answers visible to DSH, **not to the real
+destination hidden behind an accepted fake-IP answer**. The proxy may resolve
+and route that hostname to any destination it permits, including a private or
+otherwise non-public service; DSH cannot perform its normal final-destination
+check on that connection.
 
 The wrapper never weakens an answer that the original resolver accepted, and
 it rethrows every rejection that is not an all-fake-IPv4 hostname answer.
