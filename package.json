@@ -1,0 +1,29 @@
+{
+  "name": "dsh-web-fetch-fakeip-repair",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reversible repair for DSH web_fetch behind a TUN fake-IP DNS proxy (198.18.0.0/15).",
+  "license": "MIT",
+  "repository": "https://github.com/Siphon2673/dsh-web-fetch-fakeip-repair.git",
+  "exports": "./index.mjs",
+  "files": [
+    "index.mjs",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "web-fetch",
+    "fake-ip",
+    "tun",
+    "repair"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

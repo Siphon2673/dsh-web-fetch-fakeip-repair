@@ -1,5 +1,5 @@
 /**
- * web-fetch-fakeip — a reversible, profile-local DSH plugin.
+ * dsh-web-fetch-fakeip-repair — a reversible, profile-local DSH plugin.
  *
  * Why this exists
  * ---------------
@@ -32,9 +32,12 @@ import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import { unlinkSync, writeFileSync } from 'node:fs';
 
-export const name = 'web-fetch-fakeip';
+export const name = 'web-fetch-fakeip-repair';
 export const inject = ['web'];
 
+// Kept stable across the package rename: a running "web-fetch-fakeip" row
+// and the new "web-fetch-fakeip-repair" row share one wrapper, so a hot swap
+// does not nest two wrappers and uninstalling either one stays safe.
 const MARK = Symbol.for('dsh.web-fetch-fakeip.wrapper');
 const ORIGINAL = Symbol.for('dsh.web-fetch-fakeip.original');
 const REFS = Symbol.for('dsh.web-fetch-fakeip.refs');
@@ -150,7 +153,7 @@ function clearStatus(config) {
 export function apply(ctx, config) {
 	const web = ctx.web;
 	if (web === undefined || !(web.fetchProviders instanceof Map)) {
-		ctx.logger.warn('web-fetch-fakeip: ctx.web.fetchProviders is unavailable; web_fetch is unchanged');
+		ctx.logger.warn('web-fetch-fakeip-repair: ctx.web.fetchProviders is unavailable; web_fetch is unchanged');
 		writeStatus(config, { active: false, reason: 'web.fetchProviders unavailable' });
 		return;
 	}
@@ -167,16 +170,16 @@ export function apply(ctx, config) {
 		try {
 			release = acquire(provider);
 		} catch (error) {
-			ctx.logger.warn(`web-fetch-fakeip: cannot patch the http fetch provider: ${error?.message ?? String(error)}`);
+			ctx.logger.warn(`web-fetch-fakeip-repair: cannot patch the http fetch provider: ${error?.message ?? String(error)}`);
 			writeStatus(config, { active: false, reason: String(error) });
 			return true;
 		}
 		if (release === undefined) {
-			ctx.logger.warn('web-fetch-fakeip: the http fetch provider has no resolveAddresses field; web_fetch is unchanged');
+			ctx.logger.warn('web-fetch-fakeip-repair: the http fetch provider has no resolveAddresses field; web_fetch is unchanged');
 			writeStatus(config, { active: false, reason: 'provider has no resolveAddresses' });
 			return true;
 		}
-		ctx.logger.info('web-fetch-fakeip: enabled; DNS answers in 198.18.0.0/15 are accepted for hostnames');
+		ctx.logger.info('web-fetch-fakeip-repair: enabled; DNS answers in 198.18.0.0/15 are accepted for hostnames');
 		writeStatus(config, { active: true, patched: true, provider: 'http' });
 		return true;
 	};
@@ -193,9 +196,9 @@ export function apply(ctx, config) {
 				release = undefined;
 			}
 			clearStatus(config);
-			ctx.logger.info('web-fetch-fakeip: disabled; the original public-address resolver is restored');
+			ctx.logger.info('web-fetch-fakeip-repair: disabled; the original public-address resolver is restored');
 		},
-		'web-fetch-fakeip: lifecycle',
+		'web-fetch-fakeip-repair: lifecycle',
 	);
 
 	if (!activate()) {
@@ -209,7 +212,7 @@ export function apply(ctx, config) {
 			if (attempts >= RETRY_ATTEMPTS) {
 				clearInterval(timer);
 				timer = undefined;
-				ctx.logger.warn('web-fetch-fakeip: the http fetch provider did not appear within 10s; web_fetch is unchanged');
+				ctx.logger.warn('web-fetch-fakeip-repair: the http fetch provider did not appear within 10s; web_fetch is unchanged');
 				writeStatus(config, { active: false, reason: 'provider not found' });
 			}
 		}, RETRY_INTERVAL_MS);

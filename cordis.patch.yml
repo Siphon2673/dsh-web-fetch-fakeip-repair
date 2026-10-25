@@ -1,4 +1,4 @@
-# dsh-web-fetch-fakeip — bundle patch layer.
+# dsh-web-fetch-fakeip-repair — bundle patch layer.
 #
 # This file is loaded as a bundle layer when the package is installed through
 # the profile's Plugins page or `dsh plugin --profile <profile> add <path>`.
@@ -9,7 +9,7 @@
 # the installed package directory.
 
 - insert:
-    - id: web-fetch-fakeip
-      name: ./web-fetch-fakeip.mjs
+    - id: web-fetch-fakeip-repair
+      name: ./index.mjs
       config:
-        statusFile: /tmp/dsh-web-fetch-fakeip.status
+        statusFile: /tmp/dsh-web-fetch-fakeip-repair.status
